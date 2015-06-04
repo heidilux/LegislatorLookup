@@ -16,7 +16,13 @@
         <tbody>
         @foreach ($bills as $bill)
             <tr>
-                <td><a href="{!! $bill['last_version']['urls']['html'] !!}">{!! $bill['number'] !!}</a> </td>
+                <td>
+                    @if (isset($bill['last_version']['urls']['html']))
+                        <a href="{!! $bill['last_version']['urls']['html'] !!}">{!! $bill['number'] !!}</a>
+                    @else{!! $bill['number'] !!}
+                    @endif
+
+                </td>
                 <td>{!! $bill['official_title'] !!}</td>
             </tr>
         @endforeach
