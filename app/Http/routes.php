@@ -2,4 +2,5 @@
 
 Route::get('/', 'IndexController@index');
 
-Route::get('api/{zip}', ['uses' => 'IndexController@showResult']);
+Route::get('ziplookup', ['as' => 'ziplookup', 'uses' => 'IndexController@index']);
+Route::post('ziplookup', ['as' => 'ziplookup', 'uses' => 'IndexController@postZipResult']);
