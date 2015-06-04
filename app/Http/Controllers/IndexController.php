@@ -24,22 +24,41 @@ class IndexController extends Controller {
      */
     public function postZipResult(ZipLookup $lookup)
     {
+        $lookup->flash();
         $zip = $lookup->input('zip');
 
-        $res = $this->apiRequest($zip);
+        $res = $this->apiZipLookup($zip);
 
         $legi = $this->formatResults($res);
 
-        return view('index', compact('legi'));
+        return view('index', compact('legi', 'zip'));
     }
 
     /**
-     * Create guzzle client and fetch data
+     * Fetch sponsored bills from api and display to user
+     *
+     * @param $id
+     * @return \Illuminate\View\View
+     */
+    public function showSponsoredBills($id)
+    {
+
+        $bills = $this->apiBillLookup($id);
+        $legislator = $this->apiLegislatorLookup($id);
+
+        $bills = $this->formatResults($bills);
+        $legislator = $this->formatResults($legislator);
+
+        return view('bills', compact('bills', 'legislator'));
+    }
+
+    /**
+     * Create guzzle client and perform ZipCode lookup
      *
      * @param $zip
      * @return \Psr\Http\Message\ResponseInterface
      */
-    private function apiRequest($zip)
+    private function apiZipLookup($zip)
     {
         $client = new Client(['base_uri' => 'https://congress.api.sunlightfoundation.com']);
         $res = $client->get(
@@ -47,6 +66,38 @@ class IndexController extends Controller {
             '&fields=state_name,bioguide_id,first_name,last_name,nickname,chamber,party,
             phone,website,office,contact_form,fax,twitter_id,youtube_id,facebook_id,oc_email
             &apikey=' . getenv('API_KEY'));
+
+        return $res;
+    }
+
+    /**
+     * Create guzzle client and perform Bioguide_id lookup
+     *
+     * @param $id
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    private function apiBillLookup($id)
+    {
+        $client = new Client(['base_uri' => 'https://congress.api.sunlightfoundation.com']);
+        $res = $client->get(
+            '/bills?sponsor_id=' . $id .
+            '&apikey=' . getenv('API_KEY'));
+
+        return $res;
+    }
+
+    /**
+     * Create guzzle client and perform Bioguide_id lookup
+     *
+     * @param $id
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    private function apiLegislatorLookup($id)
+    {
+        $client = new Client(['base_uri' => 'https://congress.api.sunlightfoundation.com']);
+        $res = $client->get(
+            '/legislators?bioguide_id=' . $id .
+            '&apikey=' . getenv('API_KEY'));
 
         return $res;
     }
