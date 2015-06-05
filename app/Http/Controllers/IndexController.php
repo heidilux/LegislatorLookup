@@ -6,6 +6,16 @@ use Illuminate\Support\Collection;
 
 class IndexController extends Controller {
 
+    private $apiKey;
+    private $baseUri;
+
+    function __construct()
+    {
+        $this->apiKey = getenv('API_KEY');
+        $this->baseUri = 'https://congress.api.sunlightfoundation.com';
+    }
+
+
     /**
      * Show the index page with search field
      *
@@ -52,6 +62,17 @@ class IndexController extends Controller {
         return view('bills', compact('bills', 'legislator'));
     }
 
+    public function apiLookup($type, $filter, $query, $fields = [])
+    {
+        $client = new Client(['base_uri' => $this->baseUri]);
+
+        $url = '/' . $type . '?' . $filter . '=' . $query . '&fields=' . implode(',', $fields) . '&apikey=' . $this->apiKey;
+        dd($url);
+        $res = $client->get($url);
+
+        return $res;
+    }
+
     /**
      * Create guzzle client and perform ZipCode lookup
      *
@@ -60,12 +81,12 @@ class IndexController extends Controller {
      */
     private function apiZipLookup($zip)
     {
-        $client = new Client(['base_uri' => 'https://congress.api.sunlightfoundation.com']);
+        $client = new Client(['base_uri' => $this->baseUri]);
         $res = $client->get(
             '/legislators/locate?zip=' . $zip .
             '&fields=state_name,bioguide_id,first_name,last_name,nickname,chamber,party,
             phone,website,office,contact_form,fax,twitter_id,youtube_id,facebook_id,oc_email
-            &apikey=' . getenv('API_KEY'));
+            &apikey=' . $this->apiKey);
 
         return $res;
     }
@@ -78,10 +99,10 @@ class IndexController extends Controller {
      */
     private function apiBillLookup($id)
     {
-        $client = new Client(['base_uri' => 'https://congress.api.sunlightfoundation.com']);
+        $client = new Client(['base_uri' => $this->baseUri]);
         $res = $client->get(
             '/bills?sponsor_id=' . $id .
-            '&apikey=' . getenv('API_KEY'));
+            '&apikey=' . $this->apiKey);
 
         return $res;
     }
@@ -94,10 +115,10 @@ class IndexController extends Controller {
      */
     private function apiLegislatorLookup($id)
     {
-        $client = new Client(['base_uri' => 'https://congress.api.sunlightfoundation.com']);
+        $client = new Client(['base_uri' => $this->baseUri]);
         $res = $client->get(
             '/legislators?bioguide_id=' . $id .
-            '&apikey=' . getenv('API_KEY'));
+            '&apikey=' . $this->apiKey);
 
         return $res;
     }
