@@ -47,40 +47,43 @@
                             {{--<li class="list-group-item"><a href="{!! $leg['contact_form'] !!}">Contact Form</a></li>--}}
                             {{--<li class="list-group-item">{!! $leg['office'] !!}</li>--}}
                         {{--</ul>--}}
-                        <div class="button-row clearfix">
-                            <div class="pull-left">
-                                <a href="{!! $leg['website'] !!}" target="_blank">
-                                    <button class="btn btn-success">Visit website</button>
-                                </a>
-                            </div>
-                            <div class="pull-right">
-                                <a href="{!! route('sponsored-bills', [$leg['bioguide_id']]) !!}">
-                                    <button class="btn btn-primary">View Bills</button>
-                                </a>
+                        <div class="list-group">
+                            <a href="{!! $leg['website'] !!}" target="_blank" class="list-group-item">Visit Website</a>
+                            <a href="{!! route('sponsored-bills', [$leg['bioguide_id']]) !!}" class="list-group-item">View Bills</a>
+                            <a href="{!! route('apiLookup', ['committees', 'member_ids', $leg['bioguide_id']]) !!}" class="list-group-item">Committees</a>
+                            <div class="list-group-item text-center">
+                                @if (array_key_exists('twitter_id', $leg))
+                                    <a href="http://twitter.com/{!! $leg['twitter_id'] !!}" target="_blank">
+                                        <i class="fa fa-2x fa-twitter-square"></i> </a>
+                                @endif
+                                @if (array_key_exists('youtube_id', $leg))
+                                    <a href="http://youtube.com/{!! $leg['youtube_id'] !!}" target="_blank">
+                                        <i class="fa fa-2x fa-youtube-square"></i> </a>
+                                @endif
+                                @if (array_key_exists('facebook_id', $leg))
+                                    <a href="http://facebook.com/{!! $leg['facebook_id'] !!}" target="_blank">
+                                        <i class="fa fa-2x fa-facebook-square"></i> </a>
+                                @endif
                             </div>
                         </div>
 
 
-                        <div class="text-center">
-                            @if (array_key_exists('twitter_id', $leg))
-                                <a href="http://twitter.com/{!! $leg['twitter_id'] !!}" target="_blank">
-                                    <i class="fa fa-2x fa-twitter-square"></i> </a>
-                            @endif
-                            @if (array_key_exists('youtube_id', $leg))
-                                <a href="http://youtube.com/{!! $leg['youtube_id'] !!}" target="_blank">
-                                    <i class="fa fa-2x fa-youtube-square"></i> </a>
-                            @endif
-                            @if (array_key_exists('facebook_id', $leg))
-                                <a href="http://facebook.com/{!! $leg['facebook_id'] !!}" target="_blank">
-                                    <i class="fa fa-2x fa-facebook-square"></i> </a>
-                            @endif
-                        </div>
+
 
                     </div>
                 </div>
             </div>
         @endforeach
     </div>
+@endif
+
+@if (isset($committees))
+
+    <ul>
+    @foreach($committees as $committee)
+        <li>{!! $committee['name'] !!}</li>
+    @endforeach
+    </ul>
 @endif
 
 

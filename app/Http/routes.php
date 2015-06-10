@@ -7,4 +7,4 @@ Route::post('ziplookup', ['as' => 'ziplookup', 'uses' => 'IndexController@postZi
 
 Route::get('bills/{id}', ['as' => 'sponsored-bills', 'uses' => 'IndexController@showSponsoredBills']);
 
-Route::get('api/{type}/{filter}/{query}/{fields?}', ['as' => 'apiLookup', 'uses' => 'IndexController@apiLookup']);
+Route::get('{method}/{filter}/{query}/{fields?}', ['as' => 'apiLookup', 'uses' => 'IndexController@apiLookup']);

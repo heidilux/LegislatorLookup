@@ -62,15 +62,25 @@ class IndexController extends Controller {
         return view('bills', compact('bills', 'legislator'));
     }
 
-    public function apiLookup($type, $filter, $query, $fields = [])
+    public function apiLookup($method, $filter, $query, $fields = null)
     {
         $client = new Client(['base_uri' => $this->baseUri]);
+        $fields = ($fields ? '&fields=' . $fields : '');
 
-        $url = '/' . $type . '?' . $filter . '=' . $query . '&fields=' . implode(',', $fields) . '&apikey=' . $this->apiKey;
-        dd($url);
+        $url = '/' . $method . '?' . $filter . '=' . $query . $fields . '&apikey=' . $this->apiKey;
+        //dd($url);
         $res = $client->get($url);
 
-        return $res;
+        switch ($method) {
+            case "legislators":
+                $legi = $this->formatResults($res);
+                break;
+            case "committees":
+                $committees = $this->formatResults($res);
+                break;
+        }
+
+        return view('index', compact('legi', 'committees'));
     }
 
     /**
