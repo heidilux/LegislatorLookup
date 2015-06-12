@@ -38,7 +38,12 @@ $(document).ready(function() {
         }
     });
 
-    $('#query-form').validate({ // initialize the plugin
+    $('#query-form').validate( {
+        errorPlacement: function(error, element) {
+            error.appendTo(".form-inline");
+        },
+        errorElement: 'div',
+        errorClass: 'validation-error',
         rules: {
             query: {
                 required: true

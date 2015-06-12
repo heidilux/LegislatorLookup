@@ -130,14 +130,14 @@ class IndexController extends Controller {
 
         $count = count($data['results']);
 
-        $legi = [];
+        $formatted = [];
         for ($i = 0; $i < $count; $i++) {
             foreach ($data['results'][$i] as $k => $v) {
-                $legi[$i][$k] = $v;
+                $formatted[$i][$k] = $v;
             }
         }
 
-        return $legi;
+        return $formatted;
     }
 
 }
