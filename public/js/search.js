@@ -16,6 +16,8 @@ $(document).ready(function() {
         filter = $(this).data("filter");
         query = $("#search-query").val();
 
+
+
     });
     
     // Construct the URI and 'click' it
@@ -24,6 +26,10 @@ $(document).ready(function() {
         if (! valid) { return false; }
         e.preventDefault();
         query = $("#search-query").val();
+
+        // the 'state' filter requires that the abbr be uppercase
+        query = (filter == 'state') ? query.toUpperCase() : query;
+
         url = "/" + method + "/" + filter + "/" + query;
 
         window.location.href = url;
@@ -38,6 +44,7 @@ $(document).ready(function() {
         }
     });
 
+    // Initialize the validate plugin and set some formatting options
     $('#query-form').validate( {
         errorPlacement: function(error, element) {
             error.appendTo(".form-inline");

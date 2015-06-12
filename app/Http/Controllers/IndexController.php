@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\Http\Requests\ZipLookup;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 
@@ -29,7 +28,7 @@ class IndexController extends Controller {
      * Working on a genericized method
      *
      * @param $method  // kind of the first-order subject you're looking for
-     * @param $filter  // what are you searching by [party, id, name, etc]
+     * @param $filter  // what are you searching by [party, id, name, etc
      * @param $query   // and what are you searching for
      * @param null $fields
      * @return \Illuminate\View\View
@@ -51,15 +50,18 @@ class IndexController extends Controller {
 
         switch ($method) {
             case "legislators":
+                // fallthrough
             case "locate":
                 $legi = $this->formatResults($res);
+                return view('index', compact('legi'));
                 break;
+
             case "committees":
                 $committees = $this->formatResults($res);
+                $legislator = $this->formatResults($this->apiLegislatorLookup($query));
+                return view('lists', compact('committees', 'legislator'));
                 break;
         }
-
-        return view('index', compact('legi', 'committees'));
     }
 
     /**
@@ -77,7 +79,7 @@ class IndexController extends Controller {
         $bills = $this->formatResults($bills);
         $legislator = $this->formatResults($legislator);
 
-        return view('bills', compact('bills', 'legislator'));
+        return view('lists', compact('bills', 'legislator'));
     }
 
 
