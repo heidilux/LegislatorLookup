@@ -15,7 +15,6 @@ class IndexController extends Controller {
         $this->baseUri = 'https://congress.api.sunlightfoundation.com';
     }
 
-
     /**
      * Show the index page with search field
      *
@@ -27,21 +26,40 @@ class IndexController extends Controller {
 	}
 
     /**
-     * Fetch results from api and display to user
+     * Working on a genericized method
      *
-     * @param ZipLookup $lookup
+     * @param $method  // kind of the first-order subject you're looking for
+     * @param $filter  // what are you searching by [party, id, name, etc]
+     * @param $query   // and what are you searching for
+     * @param null $fields
      * @return \Illuminate\View\View
      */
-    public function postZipResult(ZipLookup $lookup)
+    public function apiLookup($method, $filter, $query, $fields = null)
     {
-        $lookup->flash();
-        $zip = $lookup->input('zip');
+        $client = new Client(['base_uri' => $this->baseUri]);
+        $fields = ($fields ? '&fields=' . $fields : '');
 
-        $res = $this->apiZipLookup($zip);
+        $url = '/' . $method . '?' . $filter . '=' . $query . $fields . '&apikey=' . $this->apiKey;
 
-        $legi = $this->formatResults($res);
+        // To search by zip requires an extra '/' in the URI that obviously
+        // couldn't be passed to the route via the slash-delimited params.
+        if ($method == 'locate') {
+            $url = '/legislators/locate?' . $filter . '=' . $query . $fields . '&apikey=' . $this->apiKey;
+        }
 
-        return view('index', compact('legi', 'zip'));
+        $res = $client->get($url);
+
+        switch ($method) {
+            case "legislators":
+            case "locate":
+                $legi = $this->formatResults($res);
+                break;
+            case "committees":
+                $committees = $this->formatResults($res);
+                break;
+        }
+
+        return view('index', compact('legi', 'committees'));
     }
 
     /**
@@ -62,44 +80,7 @@ class IndexController extends Controller {
         return view('bills', compact('bills', 'legislator'));
     }
 
-    public function apiLookup($method, $filter, $query, $fields = null)
-    {
-        $client = new Client(['base_uri' => $this->baseUri]);
-        $fields = ($fields ? '&fields=' . $fields : '');
 
-        $url = '/' . $method . '?' . $filter . '=' . $query . $fields . '&apikey=' . $this->apiKey;
-        //dd($url);
-        $res = $client->get($url);
-
-        switch ($method) {
-            case "legislators":
-                $legi = $this->formatResults($res);
-                break;
-            case "committees":
-                $committees = $this->formatResults($res);
-                break;
-        }
-
-        return view('index', compact('legi', 'committees'));
-    }
-
-    /**
-     * Create guzzle client and perform ZipCode lookup
-     *
-     * @param $zip
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    private function apiZipLookup($zip)
-    {
-        $client = new Client(['base_uri' => $this->baseUri]);
-        $res = $client->get(
-            '/legislators/locate?zip=' . $zip .
-            '&fields=state_name,bioguide_id,first_name,last_name,nickname,chamber,party,
-            phone,website,office,contact_form,fax,twitter_id,youtube_id,facebook_id,oc_email
-            &apikey=' . $this->apiKey);
-
-        return $res;
-    }
 
     /**
      * Create guzzle client and perform Bioguide_id lookup

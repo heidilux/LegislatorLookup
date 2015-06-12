@@ -22,7 +22,7 @@ class ZipLookup extends Request {
 	public function rules()
 	{
 		return [
-			'zip' => 'required|digits:5'
+			'query' => 'required'
 		];
 	}
 
