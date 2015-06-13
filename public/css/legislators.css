@@ -1,3 +1,13 @@
 .validation-error {
     color: #a94442;
 }
+
+#search-btn {
+    border-color: #5D4384;
+    background-color: #5D4384;
+    color: #fff;
+}
+
+#search-dropdown {
+    color: #5D4384;
+}

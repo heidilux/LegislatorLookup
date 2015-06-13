@@ -10,13 +10,22 @@ $(document).ready(function() {
         $("#search-btn").text($(this).text());
         $("#search-btn").val($(this).text());
         $("#filter").val($(this).data("filter"));
-        $("#search-query").focus();
 
         method = $(this).data("method");
         filter = $(this).data("filter");
         query = $("#search-query").val();
 
-
+        switch (filter) {
+            case 'query':
+                $("#search-query").attr("placeholder", "First or Last name").focus();
+                break;
+            case 'zip':
+                $("#search-query").attr("placeholder", "5 digit zipcode").focus();
+                break;
+            case 'state':
+                $("#search-query").attr("placeholder", "2 letter abbreviation").focus();
+                break;
+        }
 
     });
     
@@ -47,7 +56,7 @@ $(document).ready(function() {
     // Initialize the validate plugin and set some formatting options
     $('#query-form').validate( {
         errorPlacement: function(error, element) {
-            error.appendTo(".form-inline");
+            error.appendTo("#query-form");
         },
         errorElement: 'div',
         errorClass: 'validation-error',
