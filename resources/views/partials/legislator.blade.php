@@ -31,7 +31,7 @@
                         <div class="list-group">
                             <a href="{!! $leg['website'] !!}" target="_blank" class="list-group-item">Visit Website</a>
                             <a href="{!! route('sponsored-bills', [$leg['bioguide_id']]) !!}" class="list-group-item">View Bills</a>
-                            <a href="{!! route('apiLookup', ['committees', 'member_ids', $leg['bioguide_id']]) !!}" class="list-group-item">Committees</a>
+                            <a href="{!! route('committees', [$leg['bioguide_id']]) !!}" class="list-group-item">Committees</a>
                             <div class="list-group-item text-center">
                                 @if (array_key_exists('twitter_id', $leg))
                                     <a href="http://twitter.com/{!! $leg['twitter_id'] !!}" target="_blank">

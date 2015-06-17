@@ -2,7 +2,6 @@
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Session;
 use Laracasts\Utilities\JavaScript\JavaScriptFacade as JavaScript;
 
 class IndexController extends Controller {
@@ -27,34 +26,20 @@ class IndexController extends Controller {
 	}
 
     /**
-     * Working on a genericized method
+     * Fetch results from the API and send appropriate data to the view
      *
      * @param $method  // kind of the first-order subject you're looking for
-     * @param $filter  // what are you searching by [party, id, name, etc
+     * @param $filter  // what are you searching by [zip, id, name, etc]
      * @param $query   // and what are you searching for
-     * @param null $fields
+     * @param null $fields // not implemented, but allows you to specify which results are returned
      * @return \Illuminate\View\View
      */
     public function apiLookup($method, $filter, $query, $fields = null)
     {
-        $client = new Client(['base_uri' => $this->baseUri]);
-        $fields = ($fields ? '&fields=' . $fields : '');
+        $res = $this->fetchFromApi($method, $filter, $query, $fields);
 
-        $url = '/' . $method . '?' . $filter . '=' . $query . $fields . '&apikey=' . $this->apiKey;
-
-        // To search by zip requires an extra '/' in the URI that obviously
-        // couldn't be passed to the route via the slash-delimited params.
-        if ($method == 'locate') {
-            $url = '/legislators/locate?' . $filter . '=' . $query . $fields . '&apikey=' . $this->apiKey;
-        }
-
-        $res = $client->get($url);
-        $text = $this->previousText($filter);
-        JavaScript::put([
-            'previousFilter' => $filter,
-            'previousText'   => $text,
-            'previousMethod' => $method
-        ]);
+        // Set a few variables to be available to the javascript
+        $this->setJsVariables($method, $filter);
 
         switch ($method) {
             case "legislators":
@@ -63,12 +48,6 @@ class IndexController extends Controller {
                 $legi = $this->formatResults($res);
                 $this->getDemRepBalance($legi);
                 return view('index', compact('legi'));
-                break;
-
-            case "committees":
-                $committees = $this->formatResults($res);
-                $legislator = $this->formatResults($this->apiLegislatorLookup($query));
-                return view('lists', compact('committees', 'legislator'));
                 break;
         }
     }
@@ -91,36 +70,58 @@ class IndexController extends Controller {
         return view('lists', compact('bills', 'legislator'));
     }
 
+    /**
+     * Fetch committees from api and display to user
+     *
+     * @param $id
+     * @return \Illuminate\View\View
+     */
+    public function showCommittees($id)
+    {
+        $committees = $this->apiCommitteeLookup($id);
+        $legislator = $this->apiLegislatorLookup($id);
 
+        $committees = $this->formatResults($committees);
+        $legislator = $this->formatResults($legislator);
+
+        return view('lists', compact('committees', 'legislator'));
+    }
 
     /**
-     * Create guzzle client and perform Bioguide_id lookup
+     * Look up bills with bioguide_id
      *
      * @param $id
      * @return \Psr\Http\Message\ResponseInterface
      */
     private function apiBillLookup($id)
     {
-        $client = new Client(['base_uri' => $this->baseUri]);
-        $res = $client->get(
-            '/bills?sponsor_id=' . $id .
-            '&apikey=' . $this->apiKey);
+        $res = $this->fetchFromApi('bills','sponsor_id', $id);
 
         return $res;
     }
 
     /**
-     * Create guzzle client and perform Bioguide_id lookup
+     * Look up legislators with bioguide_id
      *
      * @param $id
      * @return \Psr\Http\Message\ResponseInterface
      */
     private function apiLegislatorLookup($id)
     {
-        $client = new Client(['base_uri' => $this->baseUri]);
-        $res = $client->get(
-            '/legislators?bioguide_id=' . $id .
-            '&apikey=' . $this->apiKey);
+        $res = $this->fetchFromApi('legislators', 'bioguide_id', $id);
+
+        return $res;
+    }
+
+    /**
+     * Look up committees with bioguide_id
+     *
+     * @param $id
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    private function apiCommitteeLookup($id)
+    {
+        $res = $this->fetchFromApi('committees','member_ids', $id);
 
         return $res;
     }
@@ -151,6 +152,39 @@ class IndexController extends Controller {
         return $formatted;
     }
 
+    /**
+     * Construct the URL, and fetch the results from the API
+     *
+     * @param $method
+     * @param $filter
+     * @param $query
+     * @param $fields
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    private function fetchFromApi($method, $filter, $query, $fields = null)
+    {
+        $client = new Client(['base_uri' => $this->baseUri]);
+        $fields = ($fields ? '&fields=' . $fields : '');
+
+        $url = '/' . $method . '?' . $filter . '=' . $query . $fields . '&apikey=' . $this->apiKey;
+
+        // To search by zip requires an extra '/' in the URI that obviously
+        // couldn't be passed to the route via the slash-delimited params.
+        if ($method == 'locate') {
+            $url = '/legislators/locate?' . $filter . '=' . $query . $fields . '&apikey=' . $this->apiKey;
+        }
+
+        $res = $client->get($url);
+
+        return $res;
+    }
+
+    /**
+     * How many Ds and Rs are in the result set?
+     * Create a couple variables for the JS to work with
+     *
+     * @param array $legislators
+     */
     private function getDemRepBalance(array $legislators)
     {
         $rep = 0;
@@ -169,6 +203,13 @@ class IndexController extends Controller {
         ]);
     }
 
+    /**
+     * We need to set the search button text to be
+     * whatever it was the last time it was clicked
+     *
+     * @param $filter
+     * @return string
+     */
     private function previousText($filter)
     {
         switch ($filter) {
@@ -184,8 +225,24 @@ class IndexController extends Controller {
         }
 
         return $text;
+    }
 
-
+    /**
+     * Set a couple more variables to be available to the JS
+     * so we can set up the search box like it was last time
+     *
+     * @param $method
+     * @param $filter
+     */
+    private function setJsVariables($method, $filter)
+    {
+        $text = $this->previousText($filter);
+        JavaScript::put(
+            [
+                'previousFilter' => $filter,
+                'previousText'   => $text,
+                'previousMethod' => $method
+            ]);
     }
 
 }
