@@ -9,7 +9,7 @@
             <div class="input-group-btn">
                 <a href="#" id="search-btn" class="btn btn-default">Name</a>
                 <button id="search-dropdown" type="button" class="btn btn-default dropdown-toggle"
-                        data-toggle="dropdown"> <span class="caret"></span></button>
+                        data-toggle="dropdown">&nbsp;<span class="caret"></span>&nbsp;</button>
                 <ul id="search-filter" class="dropdown-menu dropdown-menu-right" role="menu">
                     <li><a href="#" data-method="legislators" data-filter="query">Name</a></li>
                     <li><a href="#" data-method="locate" data-filter="zip">Zipcode</a></li>
