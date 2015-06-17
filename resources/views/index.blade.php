@@ -6,7 +6,7 @@
 
 @section('content')
 
-<h1 class="text-center">Lookup your legislators</h1>
+<h1 class="text-center">Legislator Lookup</h1>
 
 @include('partials.search-form')
 

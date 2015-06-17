@@ -17,7 +17,7 @@ $(document).ready(function() {
 
         switch (filter) {
             case 'query':
-                $("#search-query").attr("placeholder", "First or Last name").focus();
+                $("#search-query").attr("placeholder", "Full or partial name").focus();
                 break;
             case 'zip':
                 $("#search-query").attr("placeholder", "5 digit zipcode").focus();
