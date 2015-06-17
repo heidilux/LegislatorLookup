@@ -1,5 +1,6 @@
 $(document).ready(function() {
-
+    console.log(rep);
+    console.log(dem);
 });
 
 // TODO: Color the borders red or blue to match party

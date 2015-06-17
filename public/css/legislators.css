@@ -11,3 +11,11 @@
 #search-dropdown {
     color: #5D4384;
 }
+
+.democrat {
+    border: 3px solid #6B88C8;
+}
+
+.repub {
+    border: 3px solid #C86B6B;
+}

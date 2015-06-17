@@ -2,6 +2,7 @@
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
+use Laracasts\Utilities\JavaScript\JavaScriptFacade as JavaScript;
 
 class IndexController extends Controller {
 
@@ -53,6 +54,7 @@ class IndexController extends Controller {
                 // fallthrough
             case "locate":
                 $legi = $this->formatResults($res);
+                $balance = $this->getDemRepBalance($legi);
                 return view('index', compact('legi'));
                 break;
 
@@ -140,6 +142,24 @@ class IndexController extends Controller {
         }
 
         return $formatted;
+    }
+
+    private function getDemRepBalance(array $legislators)
+    {
+        $rep = 0;
+        $dem = 0;
+
+        foreach ($legislators as $leg) {
+            if ($leg['party'] == 'R') {
+                $rep++;
+            } else {
+                $dem++;
+            }
+        }
+        JavaScript::put([
+            'rep' => $rep,
+            'dem' => $dem
+        ]);
     }
 
 }

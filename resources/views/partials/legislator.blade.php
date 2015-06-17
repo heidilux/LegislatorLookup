@@ -5,11 +5,17 @@
             <div class="alert alert-warning text-center">Whoops! We didn't find any search results for that query.</div>
         </div>
     @endif
+</div>
 
+<div class="row">
+    <div id="party-chart" style="height: 200px;"></div>
+</div>
+
+<div class="row">
     @foreach($legi as $leg)
 
         <div class="col-sm-6 col-md-4">
-            <div class="thumbnail">
+            <div class="thumbnail {!! ($leg['party'] == 'R') ? 'repub' : 'democrat' !!}">
                 <img class="img-rounded" src="https://theunitedstates.io/images/congress/225x275/{!! $leg['bioguide_id'] !!}.jpg"
                      alt="{!! $leg['last_name'] !!}">
                 <div class="caption">
