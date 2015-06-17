@@ -6,7 +6,18 @@ use Laracasts\Utilities\JavaScript\JavaScriptFacade as JavaScript;
 
 class IndexController extends Controller {
 
+    /**
+     * SunlightLabs API_KEY from .env
+     *
+     * @var string
+     */
     private $apiKey;
+
+    /**
+     * SunlightLabs base URI for API calls
+     *
+     * @var string
+     */
     private $baseUri;
 
     function __construct()
