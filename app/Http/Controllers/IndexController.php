@@ -2,6 +2,7 @@
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Session;
 use Laracasts\Utilities\JavaScript\JavaScriptFacade as JavaScript;
 
 class IndexController extends Controller {
@@ -48,13 +49,19 @@ class IndexController extends Controller {
         }
 
         $res = $client->get($url);
+        $text = $this->previousText($filter);
+        JavaScript::put([
+            'previousFilter' => $filter,
+            'previousText'   => $text,
+            'previousMethod' => $method
+        ]);
 
         switch ($method) {
             case "legislators":
                 // fallthrough
             case "locate":
                 $legi = $this->formatResults($res);
-                $balance = $this->getDemRepBalance($legi);
+                $this->getDemRepBalance($legi);
                 return view('index', compact('legi'));
                 break;
 
@@ -160,6 +167,25 @@ class IndexController extends Controller {
             'rep' => $rep,
             'dem' => $dem
         ]);
+    }
+
+    private function previousText($filter)
+    {
+        switch ($filter) {
+            case "query":
+                $text = "Name";
+                break;
+            case "zip":
+                $text = "Zipcode";
+                break;
+            case "state":
+                $text = "State";
+                break;
+        }
+
+        return $text;
+
+
     }
 
 }
