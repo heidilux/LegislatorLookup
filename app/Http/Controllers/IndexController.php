@@ -41,15 +41,9 @@ class IndexController extends Controller {
         // Set a few variables to be available to the javascript
         $this->setJsVariables($method, $filter);
 
-        switch ($method) {
-            case "legislators":
-                // fallthrough
-            case "locate":
-                $legi = $this->formatResults($res);
-                $this->getDemRepBalance($legi);
-                return view('index', compact('legi'));
-                break;
-        }
+        $legi = $this->formatResults($res);
+        $this->getDemRepBalance($legi);
+        return view('index', compact('legi'));
     }
 
     /**
