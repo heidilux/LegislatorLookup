@@ -43,6 +43,7 @@ class IndexController extends Controller {
      * @param $filter  // what are you searching by [zip, id, name, etc]
      * @param $query   // and what are you searching for
      * @param null $fields // not implemented, but allows you to specify which results are returned
+     *
      * @return \Illuminate\View\View
      */
     public function apiLookup($method, $filter, $query, $fields = null)
@@ -135,6 +136,7 @@ class IndexController extends Controller {
      * Convert api results into associative array for use in view
      *
      * @param $res
+     *
      * @return array
      */
     private function formatResults($res)
@@ -164,6 +166,7 @@ class IndexController extends Controller {
      * @param $filter
      * @param $query
      * @param $fields
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     private function fetchFromApi($method, $filter, $query, $fields = null)
