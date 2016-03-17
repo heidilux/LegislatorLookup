@@ -12,11 +12,15 @@
 
 
 @if (isset($legi))
-    @include('partials.legislator')
+    @include('partials.search')
 @endif
 
 @if (isset($committees))
     @include('partials.committees')
+@endif
+
+@if (isset($legislator))
+    @include('partials.legislator')
 @endif
 
 

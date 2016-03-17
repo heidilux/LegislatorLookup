@@ -2,14 +2,14 @@
 
 @section('content')
 
-<h1>{!! ($legislator[0]['nickname']) ?: $legislator[0]['first_name'] !!} {!! $legislator[0]['last_name'] !!}
-    <small> - {!! $legislator[0]['state_name'] !!} ({!! $legislator[0]['party'] !!})</small>
+<h1>{!! ($legislator['nickname']) ?: $legislator['first_name'] !!} {!! $legislator['last_name'] !!}
+    <small> - {!! $legislator['state_name'] !!} ({!! $legislator['party'] !!})</small>
 </h1>
     @if(isset($bills))
         <table class="table">
             <thead>
             <tr>
-                <th>{!! ucfirst($legislator[0]['chamber']) !!} Bill #</th>
+                <th>{!! ucfirst($legislator['chamber']) !!} Bill #</th>
                 <th>Title</th>
             </tr>
             </thead>
@@ -33,7 +33,7 @@
         <table class="table">
             <thead>
             <tr>
-                <th>{!! ucfirst($legislator[0]['chamber']) !!} Committees</th>
+                <th>{!! ucfirst($legislator['chamber']) !!} Committees</th>
             </tr>
             </thead>
             <tbody>

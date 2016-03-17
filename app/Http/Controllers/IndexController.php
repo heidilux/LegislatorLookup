@@ -15,14 +15,6 @@ class IndexController extends Controller {
      */
     private $leg;
 
-    /**
-     * Set some properties
-     *
-     * @internal param $method
-     * @internal param $filter
-     * @internal param $query
-     * @internal param null $fields
-     */
     function __construct()
     {
         $this->leg = App::make('api');
@@ -135,63 +127,6 @@ class IndexController extends Controller {
     private function apiCommitteeLookup($id)
     {
         $res = $this->fetchFromApi('committees','member_ids', $id);
-
-        return $res;
-    }
-
-    /**
-     * Convert api results into associative array for use in view
-     *
-     * @param $res
-     *
-     * @return array
-     */
-    private function formatResults($res)
-    {
-        $body = json_decode(json_encode($res->getBody()->getContents()));
-        $body = new Collection($body);
-
-        $data = $body->first();
-        $data = json_decode($data, true);
-
-        $count = count($data['results']);
-
-        $formatted = [];
-        for ($i = 0; $i < $count; $i++) {
-            foreach ($data['results'][$i] as $k => $v) {
-                $formatted[$i][$k] = $v;
-            }
-        }
-
-        return $formatted;
-    }
-
-    /**
-     * Construct the URL, and fetch the results from the API
-     *
-     * @param $leg
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    private function fetchFromApi($leg)
-    {
-        $fields = $leg->getFields();
-        $method = $leg->getMethod();
-        $filter = $leg->getFilter();
-        $query = $leg->getQuery();
-        $key = $leg->getApiKey();
-
-        $fields = ($fields ? '&fields=' . $fields : '');
-
-        $url = '/' . $method . '?' . $filter . '=' . $query . $fields . '&apikey=' . $key;
-
-        // To search by zip requires an extra '/' in the URI that obviously
-        // couldn't be passed to the route via the slash-delimited params.
-        if ($method == 'locate') {
-            $url = '/legislators/locate?' . $filter . '=' . $query . $fields . '&apikey=' . $key;
-        }
-
-        $res = $this->leg->client->get($url);
 
         return $res;
     }

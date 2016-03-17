@@ -12,6 +12,12 @@
     color: #5D4384;
 }
 
+#party-chart {
+    margin: auto;
+    height: 200px;
+    width: 100%;
+}
+
 .democrat {
     border: 3px solid #6B88C8;
 }
