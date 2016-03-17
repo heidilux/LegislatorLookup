@@ -1,29 +1,31 @@
-<?php namespace App\Http\Controllers;
+<?php
+namespace App\Http\Controllers;
 
-use GuzzleHttp\Client;
+use app\Services\SunlightConnection;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\App;
 use Laracasts\Utilities\JavaScript\JavaScriptFacade as JavaScript;
 
 class IndexController extends Controller {
 
     /**
-     * SunlightLabs API_KEY from .env
+     * Instance of SunlightConnection
      *
-     * @var string
+     * @var SunlightConnection
      */
-    private $apiKey;
+    private $leg;
 
     /**
-     * SunlightLabs base URI for API calls
+     * Set some properties
      *
-     * @var string
+     * @internal param $method
+     * @internal param $filter
+     * @internal param $query
+     * @internal param null $fields
      */
-    private $baseUri;
-
     function __construct()
     {
-        $this->apiKey = getenv('API_KEY');
-        $this->baseUri = 'https://congress.api.sunlightfoundation.com';
+        $this->leg = App::make('api');
     }
 
     /**
@@ -48,7 +50,12 @@ class IndexController extends Controller {
      */
     public function apiLookup($method, $filter, $query, $fields = null)
     {
-        $res = $this->fetchFromApi($method, $filter, $query, $fields);
+        $this->leg->setMethod($method);
+        $this->leg->setFilter($filter);
+        $this->leg->setQuery($query);
+        $this->leg->setFields($fields);
+
+        $res = $this->fetchFromApi($this->leg);
 
         // Set a few variables to be available to the javascript
         $this->setJsVariables($method, $filter);
@@ -162,27 +169,29 @@ class IndexController extends Controller {
     /**
      * Construct the URL, and fetch the results from the API
      *
-     * @param $method
-     * @param $filter
-     * @param $query
-     * @param $fields
+     * @param $leg
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    private function fetchFromApi($method, $filter, $query, $fields = null)
+    private function fetchFromApi($leg)
     {
-        $client = new Client(['base_uri' => $this->baseUri]);
+        $fields = $leg->getFields();
+        $method = $leg->getMethod();
+        $filter = $leg->getFilter();
+        $query = $leg->getQuery();
+        $key = $leg->getApiKey();
+
         $fields = ($fields ? '&fields=' . $fields : '');
 
-        $url = '/' . $method . '?' . $filter . '=' . $query . $fields . '&apikey=' . $this->apiKey;
+        $url = '/' . $method . '?' . $filter . '=' . $query . $fields . '&apikey=' . $key;
 
         // To search by zip requires an extra '/' in the URI that obviously
         // couldn't be passed to the route via the slash-delimited params.
         if ($method == 'locate') {
-            $url = '/legislators/locate?' . $filter . '=' . $query . $fields . '&apikey=' . $this->apiKey;
+            $url = '/legislators/locate?' . $filter . '=' . $query . $fields . '&apikey=' . $key;
         }
 
-        $res = $client->get($url);
+        $res = $this->leg->client->get($url);
 
         return $res;
     }
@@ -199,11 +208,7 @@ class IndexController extends Controller {
         $dem = 0;
 
         foreach ($legislators as $leg) {
-            if ($leg['party'] == 'R') {
-                $rep++;
-            } else {
-                $dem++;
-            }
+            ($leg['party'] == 'R') ? $rep++ : $dem++;
         }
         JavaScript::put([
             'rep' => $rep,
@@ -216,6 +221,7 @@ class IndexController extends Controller {
      * whatever it was the last time it was clicked
      *
      * @param $filter
+     *
      * @return string
      */
     private function previousText($filter)
@@ -230,6 +236,8 @@ class IndexController extends Controller {
             case "state":
                 $text = "State";
                 break;
+            default:
+                $text = "Name";
         }
 
         return $text;
