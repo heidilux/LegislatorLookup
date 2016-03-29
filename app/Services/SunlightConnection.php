@@ -1,7 +1,6 @@
 <?php
 namespace app\Services;
 
-
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -151,8 +150,8 @@ class SunlightConnection
             $additional .= '&' . $filter . '=' . $value;
         }
 
-        $url = '/' . $query->method . 
-            '?' . $query->filter . 
+        $url = '/' . $query->method .
+            '?' . $query->filter .
             '=' . $query->query . $fields . $additional .
             '&apikey=' . $this->apiKey;
 
@@ -226,7 +225,7 @@ class SunlightConnection
      *
      * @return array
      */
-    private function formatResults($res)
+    public function formatResults($res)
     {
         $body = json_decode(json_encode($res->getBody()->getContents()));
         $body = new Collection($body);

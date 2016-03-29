@@ -2,7 +2,6 @@
 namespace App\Http\Controllers;
 
 use app\Services\SunlightConnection;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Laracasts\Utilities\JavaScript\JavaScriptFacade as JavaScript;
 
@@ -47,90 +46,16 @@ class IndexController extends Controller {
         $this->leg->setQuery($query);
         $this->leg->setFields($fields);
 
-        $res = $this->fetchFromApi($this->leg);
+        $res = $this->leg->fetchFromApi($this->leg);
 
         // Set a few variables to be available to the javascript
         $this->setJsVariables($method, $filter);
 
-        $legi = $this->formatResults($res);
+        $legi = $this->leg->formatResults($res);
         $this->getDemRepBalance($legi);
         return view('index', compact('legi'));
     }
-
-    /**
-     * Fetch sponsored bills from api and display to user
-     *
-     * @param $id
-     * @return \Illuminate\View\View
-     */
-    public function showSponsoredBills($id)
-    {
-
-        $bills = $this->apiBillLookup($id);
-        $legislator = $this->apiLegislatorLookup($id);
-
-        $bills = $this->formatResults($bills);
-        $legislator = $this->formatResults($legislator);
-
-        return view('lists', compact('bills', 'legislator'));
-    }
-
-    /**
-     * Fetch committees from api and display to user
-     *
-     * @param $id
-     * @return \Illuminate\View\View
-     */
-    public function showCommittees($id)
-    {
-        $committees = $this->apiCommitteeLookup($id);
-        $legislator = $this->apiLegislatorLookup($id);
-
-        $committees = $this->formatResults($committees);
-        $legislator = $this->formatResults($legislator);
-
-        return view('lists', compact('committees', 'legislator'));
-    }
-
-    /**
-     * Look up bills with bioguide_id
-     *
-     * @param $id
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    private function apiBillLookup($id)
-    {
-        $res = $this->fetchFromApi('bills','sponsor_id', $id);
-
-        return $res;
-    }
-
-    /**
-     * Look up legislators with bioguide_id
-     *
-     * @param $id
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    private function apiLegislatorLookup($id)
-    {
-        $res = $this->fetchFromApi('legislators', 'bioguide_id', $id);
-
-        return $res;
-    }
-
-    /**
-     * Look up committees with bioguide_id
-     *
-     * @param $id
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    private function apiCommitteeLookup($id)
-    {
-        $res = $this->fetchFromApi('committees','member_ids', $id);
-
-        return $res;
-    }
-
+    
     /**
      * How many Ds and Rs are in the result set?
      * Create a couple variables for the JS to work with
