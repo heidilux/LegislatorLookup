@@ -19,7 +19,7 @@
     @include('partials.committees')
 @endif
 
-@if (isset($legislator))
+@if (isset($leg))
     @include('partials.legislator')
 @endif
 
