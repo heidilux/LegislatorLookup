@@ -25,3 +25,18 @@
 .repub {
     border: 3px solid #C86B6B;
 }
+
+.fa-facebook-square {
+    color: #3b5998;
+    padding: 0 5px;
+}
+
+.fa-twitter-square {
+    color: #55acee;
+    padding: 0 5px;
+}
+
+.fa-youtube-square {
+    color: #cd201f;
+    padding: 0 5px;
+}

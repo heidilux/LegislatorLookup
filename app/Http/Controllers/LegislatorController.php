@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use app\Services\SunlightConnection;
+use Carbon\Carbon;
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\App;
-use NumberFormatter;
+use app\Services\SunlightConnection;
 
 class LegislatorController extends Controller
 {
@@ -33,6 +32,7 @@ class LegislatorController extends Controller
     {
         $legislator = $this->api->getLegislatorById($id);
         $legislator = $legislator[0];
+        $legislator = $this->carbonizeDates($legislator);
         unset($legislator['fec_ids']);
         $leg = $legislator;
         $leg['district'] = $this->ordinal($leg['district']);
@@ -46,5 +46,19 @@ class LegislatorController extends Controller
             return $number. 'th';
         else
             return $number. $ends[$number % 10];
+    }
+
+    private function carbonizeDates($legislator)
+    {
+        $born = Carbon::createFromFormat('Y-m-d', $legislator['birthday']);
+        $legislator['birthday'] = $born->toFormattedDateString();
+
+        $start = Carbon::createFromFormat('Y-m-d', $legislator['term_start']);
+        $legislator['term_start'] = $start->toFormattedDateString();
+
+        $end = Carbon::createFromFormat('Y-m-d', $legislator['term_end']);
+        $legislator['term_end'] = $end->toFormattedDateString();
+
+        return $legislator;
     }
 }
